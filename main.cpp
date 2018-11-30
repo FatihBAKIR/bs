@@ -5,8 +5,24 @@
 #include <boost/graph/successive_shortest_path_nonnegative_weights.hpp>
 #include <boost/graph/find_flow_cost.hpp>
 
+#include <fstream>
+
+struct node{};
+struct edge { 
+	int s, t;
+	int cap;
+	int cost;
+};
+
+std::vector<edge> load_edges(std::istream& is);
+
 int main()
 {
+	std::ifstream ifs("C:/Users/mfati/Documents/bs/input.txt");
+
+	//std::istringstream iss{ "0;1;1;1\n0;2;5;1\n1;3;5;1\n2;3;2;1\n" };
+	auto res = load_edges(ifs);
+
     using namespace boost;
     bs::graph_t g;
 
@@ -29,16 +45,34 @@ int main()
         rev[bwd_desc] = fwd_desc;
     };
 
-    my_add_edge(0, 1, 1, 1);
-    my_add_edge(0, 2, 5, 1);
-    my_add_edge(1, 3, 5, 1);
-    my_add_edge(2, 3, 2, 1);
+	for (auto& e : res)
+	{
+		my_add_edge(e.s, e.t, e.cap, e.cost);
+	}
 
-    successive_shortest_path_nonnegative_weights(g, 0, 3);
-    auto r = edmonds_karp_max_flow(g, 0, 3);
+    successive_shortest_path_nonnegative_weights(g, 1, 2);
+    auto r = edmonds_karp_max_flow(g, 1, 2);
 
     std::cout << "max flow: " << r << '\n';
     std::cout << "min cost: " << find_flow_cost(g) << '\n';
 
     return 0;
+}
+
+std::vector<edge> load_edges(std::istream & is)
+{
+	std::vector<edge> res;
+
+	while (is)
+	{
+		edge e;
+		char c;
+		is >> e.s >> c >> e.t >> c >> e.cap >> c >> e.cost;
+		if (e.cap == -1) e.cap = std::numeric_limits<int>::max() / 2;
+		res.push_back(e);
+	}
+
+	res.pop_back();
+
+	return res;
 }
