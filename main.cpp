@@ -4,6 +4,7 @@
 #include <boost/graph/edmonds_karp_max_flow.hpp>
 #include <boost/graph/successive_shortest_path_nonnegative_weights.hpp>
 #include <boost/graph/find_flow_cost.hpp>
+#include <boost/graph/cycle_canceling.hpp>
 
 #include <fstream>
 #include <variant>
@@ -66,8 +67,9 @@ int main()
 		my_add_edge(&e, e.s, e.t, e.cap, e.cost);
 	}
 
-    successive_shortest_path_nonnegative_weights(g, 1, 2);
+    //successive_shortest_path_nonnegative_weights(g, 1, 2);
     auto r = edmonds_karp_max_flow(g, 1, 2);
+	cycle_canceling(g);
 
     std::cout << "max flow: " << r << '\n';
     std::cout << "min cost: " << find_flow_cost(g) << '\n';
