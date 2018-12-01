@@ -31,7 +31,7 @@ std::vector<edge> load_edges(std::istream& is);
 
 int main()
 {
-	std::ifstream ifs("/home/fatih/bs/input.txt");
+	std::ifstream ifs("C:/Users/mfati/Documents/bs/input.txt");
 
 	auto res = load_edges(ifs);
 
@@ -72,6 +72,9 @@ int main()
     std::cout << "max flow: " << r << '\n';
     std::cout << "min cost: " << find_flow_cost(g) << '\n';
 
+	std::map<std::tuple<int, int, int>, int> transports;
+	std::map<int, int> leftovers;
+
     auto [it, end] = vertices(g);
     for (; it != end; ++it) {
         auto[edge_it, edge_end] = out_edges(*it, g);
@@ -80,27 +83,41 @@ int main()
             auto &e = *names[*edge_it];
             auto flow = capacity[*edge_it] - residual_capacity[*edge_it];
             if (std::get_if<std::monostate>(&e.v) == nullptr) {
-                std::cout << "f " << e.s << " " << e.t << " " << flow << " ";
-
                 struct {
                     void operator()(const leftover &l) {
-                        std::cout << l.node_num;
+						leftovers.emplace(l.node_num, cur_flow);
+                        //std::cout << l.node_num;
                     }
 
                     void operator()(const transport &t) {
-                        std::cout << t.from << " " << t.to << " " << t.time;
+						transports.emplace(std::make_tuple(t.from, t.to, t.time), cur_flow);
+                        //std::cout << t.from << " " << t.to << " " << t.time;
                     }
 
                     void operator()(const std::monostate &) {
-                        std::cout << "wot";
                     }
-                } visitor;
+					int cur_flow;
+					std::map<int, int>& leftovers;
+					decltype(transports)& transports;
+				} visitor{flow, leftovers, transports};
 
                 std::visit(visitor, names[*edge_it]->v);
-                std::cout << '\n';
             }
         }
     }
+
+	std::ofstream lof{ "leftover.txt" };
+	for (auto& l : leftovers)
+	{
+		lof << l.second << ';';
+	}
+
+	std::ofstream tof{ "transport.txt" };
+	for (auto& t : transports)
+	{
+		tof << t.second << ';';
+	}
+
     return 0;
 }
 
