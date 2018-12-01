@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <variant>
+#include <map>
 
 struct leftover
 {
@@ -92,7 +93,7 @@ int main()
                     }
 
                     void operator()(const transport &t) {
-						transports.emplace(std::make_tuple(t.from, t.to, t.time), cur_flow);
+						m_transports.emplace(std::make_tuple(t.from, t.to, t.time), cur_flow);
                         //std::cout << t.from << " " << t.to << " " << t.time;
                     }
 
@@ -100,7 +101,7 @@ int main()
                     }
 					int cur_flow;
 					std::map<int, int>& leftovers;
-					decltype(transports)& transports;
+					decltype(transports)& m_transports;
 				} visitor{flow, leftovers, transports};
 
                 std::visit(visitor, names[*edge_it]->v);
